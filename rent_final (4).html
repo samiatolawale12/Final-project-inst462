@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Priced Out: The American Rent Story</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --ink:#0d0d0d;--cream:#f5f0e8;--red:#c0392b;--orange:#e67e22;
+  --gold:#d4a843;--muted:#8a8070;--line:#d4cec4;--white:#fff;
+}
+html{scroll-behavior:smooth}
+body{background:var(--cream);color:var(--ink);font-family:'DM Sans',sans-serif;overflow-x:hidden;
+  hyphens:none;-webkit-hyphens:none;-ms-hyphens:none;word-break:normal;overflow-wrap:normal}
+p,li,span,div,h1,h2,h3,h4,blockquote,cite{
+  hyphens:none!important;-webkit-hyphens:none!important;word-break:normal!important;overflow-wrap:normal!important;
+}
+
+/* ── PROGRESS ── */
+#prog{position:fixed;top:0;left:0;height:3px;background:var(--red);z-index:999;width:0;transition:width .1s}
+
+/* ── ANIMATED HOUSES (CSS only, no emoji) ── */
+.house-scene{
+  display:flex;align-items:flex-end;justify-content:center;
+  gap:2.5rem;padding:2rem 0 0;position:relative;z-index:1;
+  overflow:hidden;
+}
+.house{display:flex;flex-direction:column;align-items:center;position:relative}
+
+/* Roof */
+.roof{
+  width:0;height:0;
+  border-left:solid transparent;
+  border-right:solid transparent;
+  border-bottom:solid;
+  position:relative;
+}
+/* Body */
+.house-body{
+  display:flex;flex-direction:column;align-items:center;
+  position:relative;border:2.5px solid;
+}
+/* Door */
+.door{
+  border:2px solid;
+  border-bottom:none;
+  border-radius:50% 50% 0 0 / 60% 60% 0 0;
+  position:absolute;bottom:0;
+}
+/* Windows */
+.win{border:2px solid;position:absolute}
+.win::after,.win::before{
+  content:'';position:absolute;background:currentColor;opacity:.3;
+}
+.win::after{width:1px;height:100%;left:50%;top:0}
+.win::before{width:100%;height:1px;top:50%;left:0}
+
+/* Chimney */
+.chimney{
+  border:2px solid;
+  position:absolute;top:0;
+}
+
+/* Individual house sizes and colours */
+.h1 .roof{border-left-width:38px;border-right-width:38px;border-bottom-width:32px;border-bottom-color:#c0392b}
+.h1 .house-body{width:76px;height:58px;background:rgba(192,57,43,.08);border-color:#c0392b}
+.h1 .door{width:16px;height:22px;border-color:#c0392b;left:50%;transform:translateX(-50%)}
+.h1 .win{width:14px;height:14px;border-color:#c0392b;top:12px}
+.h1 .win.wl{left:10px}.h1 .win.wr{right:10px}
+.h1 .chimney{width:10px;height:18px;border-color:#c0392b;right:14px;transform:translateY(-14px)}
+
+.h2 .roof{border-left-width:28px;border-right-width:28px;border-bottom-width:22px;border-bottom-color:#d4a843}
+.h2 .house-body{width:56px;height:70px;background:rgba(212,168,67,.08);border-color:#d4a843}
+.h2 .door{width:13px;height:19px;border-color:#d4a843;left:50%;transform:translateX(-50%)}
+.h2 .win{width:11px;height:11px;border-color:#d4a843}
+.h2 .win.wl{top:10px;left:7px}.h2 .win.wr{top:10px;right:7px}
+.h2 .win.wt{top:32px;left:50%;transform:translateX(-50%)}
+.h2 .chimney{width:8px;height:14px;border-color:#d4a843;left:10px;transform:translateY(-10px)}
+
+.h3 .roof{border-left-width:46px;border-right-width:46px;border-bottom-width:26px;border-bottom-color:#2980b9}
+.h3 .house-body{width:92px;height:52px;background:rgba(41,128,185,.08);border-color:#2980b9}
+.h3 .door{width:18px;height:26px;border-color:#2980b9;left:50%;transform:translateX(-50%)}
+.h3 .win{width:16px;height:14px;border-color:#2980b9;top:10px}
+.h3 .win.wl{left:10px}.h3 .win.wr{right:10px}
+.h3 .chimney{width:10px;height:16px;border-color:#2980b9;right:18px;transform:translateY(-12px)}
+
+.h4 .roof{border-left-width:32px;border-right-width:32px;border-bottom-width:28px;border-bottom-color:#27ae60}
+.h4 .house-body{width:64px;height:62px;background:rgba(39,174,96,.08);border-color:#27ae60}
+.h4 .door{width:14px;height:20px;border-color:#27ae60;left:50%;transform:translateX(-50%)}
+.h4 .win{width:12px;height:12px;border-color:#27ae60;top:12px}
+.h4 .win.wl{left:9px}.h4 .win.wr{right:9px}
+
+.h5 .roof{border-left-width:22px;border-right-width:22px;border-bottom-width:36px;border-bottom-color:#8e44ad}
+.h5 .house-body{width:44px;height:80px;background:rgba(142,68,173,.08);border-color:#8e44ad}
+.h5 .door{width:12px;height:17px;border-color:#8e44ad;left:50%;transform:translateX(-50%)}
+.h5 .win{width:10px;height:10px;border-color:#8e44ad}
+.h5 .win.wl{top:8px;left:5px}.h5 .win.wr{top:8px;right:5px}
+.h5 .win.w2l{top:28px;left:5px}.h5 .win.w2r{top:28px;right:5px}
+.h5 .win.w3l{top:48px;left:5px}.h5 .win.w3r{top:48px;right:5px}
+.h5 .chimney{width:7px;height:13px;border-color:#8e44ad;left:8px;transform:translateY(-9px)}
+
+/* bounce animations — different timing per house */
+@keyframes bounce1{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+@keyframes bounce2{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
+@keyframes bounce3{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes bounce4{0%,100%{transform:translateY(0)}50%{transform:translateY(-18px)}}
+@keyframes bounce5{0%,100%{transform:translateY(0)}50%{transform:translateY(-24px)}}
+@keyframes sway{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+
+.h1{animation:bounce1 2.8s ease-in-out infinite}
+.h2{animation:bounce2 2.2s ease-in-out infinite .4s}
+.h3{animation:bounce3 3.2s ease-in-out infinite .2s}
+.h4{animation:bounce4 2.5s ease-in-out infinite .7s}
+.h5{animation:bounce5 1.9s ease-in-out infinite .1s}
+
+/* ground line */
+.ground{width:100%;height:3px;background:linear-gradient(to right,transparent,var(--line),transparent);margin-top:0}
+
+/* ── HERO ── */
+#hero{
+  min-height:100vh;display:flex;flex-direction:column;justify-content:center;
+  padding:8vh 8vw;position:relative;overflow:hidden;
+  background:var(--ink);color:var(--cream);z-index:1;
+}
+#hero-canvas{position:absolute;inset:0;pointer-events:none;z-index:0}
+.hero-content{position:relative;z-index:1}
+.hero-eyebrow{
+  font-family:'DM Mono',monospace;font-size:.75rem;letter-spacing:.25em;
+  text-transform:uppercase;color:var(--gold);margin-bottom:1.5rem;
+  opacity:0;animation:fadeUp .8s .3s forwards;
+}
+.hero-headline{
+  font-family:'Playfair Display',serif;font-size:clamp(3rem,8vw,7rem);
+  line-height:1.0;font-weight:900;margin-bottom:1.5rem;max-width:900px;
+  opacity:0;animation:fadeUp .9s .5s forwards;
+}
+.hero-headline em{color:var(--red);font-style:italic}
+.hero-sub{
+  font-size:1.1rem;line-height:1.75;color:rgba(245,240,232,.75);
+  max-width:520px;margin-bottom:3rem;
+  opacity:0;animation:fadeUp .8s .7s forwards;
+}
+.hero-stats{display:flex;gap:3rem;flex-wrap:wrap;opacity:0;animation:fadeUp .8s .9s forwards}
+.hstat .num{font-family:'Playfair Display',serif;font-size:2.8rem;font-weight:900;color:var(--gold);display:block;line-height:1}
+.hstat .lbl{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(245,240,232,.5);margin-top:.4rem}
+.scroll-cue{
+  position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:.5rem;
+  font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.2em;
+  text-transform:uppercase;color:rgba(245,240,232,.35);
+  animation:bob 2s ease-in-out infinite;
+}
+.scroll-cue svg{width:18px;height:18px;stroke:currentColor;fill:none}
+@keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:none}}
+@keyframes bob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(7px)}}
+
+/* ── SECTIONS ── */
+.section{padding:10vh 8vw;max-width:1200px;margin:0 auto;position:relative;z-index:1}
+.section-label{
+  font-family:'DM Mono',monospace;font-size:.68rem;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:1rem;
+  display:flex;align-items:center;gap:.75rem;
+}
+.section-label::after{content:'';flex:1;height:1px;background:var(--line)}
+h2{font-family:'Playfair Display',serif;font-size:clamp(2rem,4vw,3.2rem);font-weight:700;line-height:1.1;margin-bottom:1.1rem}
+.lead{font-size:1.1rem;line-height:1.8;color:#3a3530;max-width:640px;margin-bottom:2.5rem}
+
+/* ── DIVIDERS ── */
+.divider{padding:8vh 8vw;background:var(--ink);color:var(--cream);position:relative;overflow:hidden;z-index:1}
+.divider-inner{max-width:1200px;margin:0 auto}
+.divider blockquote{font-family:'Playfair Display',serif;font-size:clamp(1.6rem,3.5vw,2.8rem);font-weight:700;line-height:1.2;max-width:800px}
+.divider blockquote em{color:var(--gold);font-style:italic}
+.divider cite{display:block;margin-top:1.2rem;font-family:'DM Mono',monospace;font-size:.68rem;letter-spacing:.1em;color:rgba(245,240,232,.35);text-transform:uppercase}
+
+/* ── CHART ── */
+.chart-wrap{
+  background:var(--white);border:1px solid var(--line);border-radius:2px;overflow:hidden;
+  opacity:0;transform:translateY(32px);transition:opacity .8s ease,transform .8s ease;
+}
+.chart-wrap.cv{opacity:1;transform:none}
+.chart-head{padding:1.2rem 1.5rem .5rem;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:.4rem}
+.chart-head .ct{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700}
+.chart-head .cn{font-family:'DM Mono',monospace;font-size:.62rem;color:var(--muted);letter-spacing:.07em}
+canvas{display:block;width:100%!important}
+
+/* ── CONTROLS ── */
+.controls{display:flex;flex-wrap:wrap;gap:.75rem;align-items:center;margin-bottom:1.5rem;padding:1rem 1.2rem;background:var(--white);border:1px solid var(--line)}
+.ctrl-lbl{font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-right:.3rem}
+.btn{font-family:'DM Mono',monospace;font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;padding:.35rem .8rem;border:1px solid var(--line);background:transparent;cursor:pointer;color:var(--ink);transition:all .15s}
+.btn:hover,.btn.active{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+.btn.metro-btn{border-color:transparent;background:rgba(0,0,0,.07)}
+.btn.metro-btn.active{background:var(--red);color:#fff;border-color:var(--red)}
+
+/* ── TABLE ── */
+.bar-table{width:100%;border-collapse:collapse}
+.bar-table th{font-family:'DM Mono',monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:.55rem 1rem;text-align:left;border-bottom:2px solid var(--line)}
+.bar-table td{padding:.5rem 1rem;border-bottom:1px solid var(--line);vertical-align:middle}
+.bar-table tr:hover td{background:rgba(0,0,0,.02)}
+.bar-cell{position:relative;height:18px;min-width:140px}
+.bar-fill{height:100%;border-radius:1px;width:0;transition:width .9s cubic-bezier(.22,1,.36,1)}
+.val-cell,.pct-cell{font-family:'DM Mono',monospace;font-size:.78rem;font-weight:500;white-space:nowrap}
+.pct-cell.hot{color:var(--red)}.pct-cell.warm{color:var(--orange)}.pct-cell.cool{color:#2980b9}
+.metro-name{font-size:.88rem;font-weight:500}
+
+/* ── STEP SECTION ── */
+.step-section{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;padding:8vh 8vw;max-width:1200px;margin:0 auto}
+.step-text h3{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:700;margin-bottom:.9rem;line-height:1.2}
+.step-text p{font-size:.98rem;line-height:1.75;color:#3a3530;margin-bottom:.7rem}
+.callout{background:var(--ink);color:var(--cream);padding:.9rem 1.1rem;margin:.6rem 0;border-left:3px solid var(--gold)}
+.callout .big{font-family:'Playfair Display',serif;font-size:1.7rem;font-weight:900;color:var(--gold)}
+.callout .sm{font-size:.78rem;letter-spacing:.04em;margin-top:.1rem;color:rgba(245,240,232,.55)}
+
+/* ── AFFORDABILITY ── */
+#afford-section{padding:10vh 8vw;background:var(--ink);color:var(--cream);position:relative;z-index:1;overflow:hidden}
+#afford-section h2{font-family:'Playfair Display',serif;font-size:clamp(2rem,4vw,3rem);font-weight:700;color:var(--cream);margin-bottom:.5rem}
+#afford-section .lead{color:rgba(245,240,232,.65);margin-bottom:2rem}
+.afford-inner{max-width:1200px;margin:0 auto}
+.slider-box{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);padding:1.5rem 2rem;margin-bottom:2rem;border-top:3px solid var(--gold)}
+.income-val{font-family:'Playfair Display',serif;font-size:3.5rem;font-weight:900;color:var(--gold);margin:.5rem 0}
+input[type=range]{width:100%;height:4px;-webkit-appearance:none;appearance:none;background:linear-gradient(to right,var(--gold) var(--p,40%),rgba(255,255,255,.15) var(--p,40%));border-radius:2px;cursor:pointer;margin:.8rem 0}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--gold);border:3px solid var(--ink)}
+.afford-summary{display:flex;gap:1.5rem;flex-wrap:wrap;margin-bottom:2rem}
+.afford-card{flex:1;min-width:150px;padding:1.1rem 1.4rem;border:1px solid}
+.afford-card.good{border-color:rgba(46,204,113,.5);background:rgba(46,204,113,.07)}
+.afford-card.bad{border-color:rgba(192,57,43,.5);background:rgba(192,57,43,.07)}
+.afford-card.neutral{border-color:rgba(212,168,67,.4);background:rgba(212,168,67,.07);flex:2}
+.afford-card .big-n{font-family:'Playfair Display',serif;font-size:2.2rem;font-weight:900}
+.afford-card.good .big-n{color:#2ecc71}.afford-card.bad .big-n{color:var(--red)}.afford-card.neutral .big-n{color:var(--gold)}
+.afford-card .sm-l{font-family:'DM Mono',monospace;font-size:.62rem;text-transform:uppercase;letter-spacing:.1em;color:rgba(245,240,232,.45);margin-top:.25rem}
+.afford-cols{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+.tab-strip{display:flex;gap:0;margin-bottom:.5rem}
+.tab-btn{font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;padding:.35rem .85rem;border:1px solid rgba(255,255,255,.15);background:transparent;color:rgba(245,240,232,.45);cursor:pointer}
+.tab-btn.on{background:rgba(255,255,255,.1);color:var(--cream);border-color:rgba(255,255,255,.3)}
+.afford-list-wrap{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);max-height:320px;overflow-y:auto}
+.afford-list-wrap::-webkit-scrollbar{width:3px}
+.afford-list-wrap::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15)}
+.afford-item{display:grid;grid-template-columns:1fr auto auto;gap:.5rem;align-items:center;padding:.45rem .8rem;border-bottom:1px solid rgba(255,255,255,.06);font-size:.82rem;opacity:0;transform:translateX(-10px);transition:opacity .3s,transform .3s}
+.afford-item.in{opacity:1;transform:none}
+.afford-item:hover{background:rgba(255,255,255,.05)}
+.afford-item .arent{font-family:'DM Mono',monospace;font-size:.72rem;color:rgba(245,240,232,.45)}
+.afford-item .apct{font-family:'DM Mono',monospace;font-size:.72rem}
+.afford-item.aff .apct{color:#2ecc71}.afford-item.unaff .apct{color:var(--red)}
+.mini-map-wrap{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);height:270px;overflow:hidden;position:relative}
+.mini-map-wrap .map-lbl{font-family:'DM Mono',monospace;font-size:.62rem;color:rgba(245,240,232,.35);padding:.5rem .7rem;border-bottom:1px solid rgba(255,255,255,.07);display:flex;justify-content:space-between}
+
+/* ── OUTRO ── */
+#outro{padding:10vh 8vw;background:var(--ink);color:var(--cream);min-height:60vh;display:flex;align-items:center;position:relative;z-index:1}
+#outro blockquote{font-family:'Playfair Display',serif;font-size:clamp(1.5rem,3vw,2.6rem);font-weight:700;line-height:1.2;max-width:800px}
+#outro blockquote em{color:var(--gold);font-style:italic}
+#outro cite{display:block;margin-top:1.5rem;font-family:'DM Mono',monospace;font-size:.68rem;color:rgba(245,240,232,.3);letter-spacing:.08em}
+.takeaway-row{display:flex;gap:1.5rem;flex-wrap:wrap;margin:2.5rem 0}
+.tk{flex:1;min-width:200px;padding:1.2rem;background:rgba(255,255,255,.06);border-left:3px solid}
+.tk.t1{border-color:var(--red)}.tk.t2{border-color:var(--gold)}.tk.t3{border-color:#2ecc71}
+.tk h4{font-family:'DM Mono',monospace;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.5rem;color:rgba(245,240,232,.6)}
+.tk p{font-size:.88rem;line-height:1.65;color:rgba(245,240,232,.75)}
+
+/* ── FOOTER ── */
+footer{padding:3vh 8vw;background:var(--ink);border-top:1px solid rgba(255,255,255,.08);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;font-family:'DM Mono',monospace;font-size:.65rem;color:rgba(245,240,232,.3);position:relative;z-index:1}
+footer strong{color:var(--gold)}
+footer a{color:rgba(245,240,232,.3);text-decoration:none}
+footer a:hover{color:var(--gold)}
+
+/* ── FADE UP ── */
+.fu{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease}
+.fu.in{opacity:1;transform:none}
+
+@media(max-width:768px){
+  .step-section,.afford-cols{grid-template-columns:1fr;gap:2rem}
+  .house-scene{gap:1.2rem}
+  .h3{display:none}
+}
+</style>
+</head>
+<body>
+
+<div id="prog"></div>
+
+<!-- ══════════ HERO ══════════ -->
+<section id="hero">
+  <canvas id="hero-canvas"></canvas>
+  <div class="hero-content">
+    <div class="hero-eyebrow">Zillow ZORI · 2015 to 2026 · 30 U.S. Metro Areas</div>
+    <h1 class="hero-headline">Priced Out:<br><em>The American Rent Story</em></h1>
+    <p class="hero-sub">Since COVID-19, American renters have faced a historic surge in housing costs. This is the story of how it happened, city by city, and where rents stand today.</p>
+    <div class="hero-stats">
+      <div class="hstat"><span class="num" id="hn1">+37%</span><span class="lbl">U.S. rent since Jan 2020</span></div>
+      <div class="hstat"><span class="num" id="hn2">$1,910</span><span class="lbl">Median U.S. rent today</span></div>
+      <div class="hstat"><span class="num" id="hn3">Miami</span><span class="lbl">Highest post-COVID surge</span></div>
+    </div>
+  </div>
+  <div class="scroll-cue">
+    scroll to explore
+    <svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+  </div>
+</section>
+
+<!-- ══════════ ANIMATED HOUSE SCENE 1 ══════════ -->
+<div style="background:var(--cream);padding-top:2.5rem;position:relative;z-index:1;overflow:hidden">
+  <div class="house-scene">
+    <div class="house h1">
+      <div class="chimney" style="right:12px;transform:translateY(-13px)"></div>
+      <div class="roof"></div>
+      <div class="house-body">
+        <div class="win wl"></div>
+        <div class="win wr"></div>
+        <div class="door"></div>
+      </div>
+    </div>
+    <div class="house h2">
+      <div class="chimney" style="left:8px;transform:translateY(-9px)"></div>
+      <div class="roof"></div>
+      <div class="house-body">
+        <div class="win wl"></div>
+        <div class="win wr"></div>
+        <div class="win wt"></div>
+        <div class="door"></div>
+      </div>
+    </div>
+    <div class="house h3">
+      <div class="chimney" style="right:16px;transform:translateY(-11px)"></div>
+      <div class="roof"></div>
+      <div class="house-body">
+        <div class="win wl"></div>
+        <div class="win wr"></div>
+        <div class="door"></div>
+      </div>
+    </div>
+    <div class="house h4">
+      <div class="roof"></div>
+      <div class="house-body">
+        <div class="win wl"></div>
+        <div class="win wr"></div>
+        <div class="door"></div>
+      </div>
+    </div>
+    <div class="house h5">
+      <div class="chimney" style="left:6px;transform:translateY(-8px)"></div>
+      <div class="roof"></div>
+      <div class="house-body">
+        <div class="win wl"></div><div class="win wr"></div>
+        <div class="win w2l"></div><div class="win w2r"></div>
+        <div class="win w3l"></div><div class="win w3r"></div>
+        <div class="door"></div>
+      </div>
+    </div>
+  </div>
+  <div class="ground"></div>
+</div>
+
+<!-- ══════════ CH1 — BASELINE ══════════ -->
+<div style="background:var(--cream);position:relative;z-index:1">
+<div class="section fu">
+  <div class="section-label">Chapter 1</div>
+  <h2>A Decade of Steady Climb</h2>
+  <p class="lead">For most of the 2010s, rent increases were predictable. Landlords raised prices a few percent each year, roughly keeping pace with inflation and wage growth. Renters budgeted for it, planned around it, and mostly absorbed it. Nobody was thrilled, but nobody was in crisis either. That slow and steady pattern held for nearly five straight years before everything changed.</p>
+  <div class="chart-wrap">
+    <div class="chart-head">
+      <span class="ct">U.S. National Rent Index, 2015 to 2026</span>
+      <span class="cn">Zillow ZORI · Smoothed, seasonally adjusted · Hover for values</span>
+    </div>
+    <canvas id="c-national" height="280"></canvas>
+  </div>
+</div>
+</div>
+
+<!-- DIVIDER 1 -->
+<div class="divider">
+  <div class="divider-inner">
+    <blockquote>"Then March 2020 arrived, and everything changed."</blockquote>
+    <cite>The pandemic completely rewired where Americans lived, where they worked, and what they paid to keep a roof over their heads.</cite>
+  </div>
+</div>
+
+<!-- ══════════ CH2 — COVID SURGE ══════════ -->
+<div style="background:var(--cream);position:relative;z-index:1">
+<div class="section fu">
+  <div class="section-label">Chapter 2</div>
+  <h2>The COVID Rent Shock</h2>
+  <p class="lead">When offices closed and remote work became the norm, millions of Americans suddenly realized they could live anywhere. They left expensive cities in droves and flooded into mid-size metros, beach towns, and Sun Belt suburbs. Landlords in those markets had never seen this kind of demand before. Rents did not just rise. They exploded.</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-bottom:1.8rem">
+    <div class="callout fu"><div class="big">+37%</div><div class="sm">National rent increase since January 2020</div></div>
+    <div class="callout fu"><div class="big">+54%</div><div class="sm">Miami, FL — the highest surge in this dataset</div></div>
+  </div>
+  <div class="chart-wrap">
+    <div class="chart-head">
+      <span class="ct">Top Metro Areas: Indexed Rent Growth since January 2020</span>
+      <span class="cn">Hover the lines to identify cities and compare trajectories</span>
+    </div>
+    <canvas id="c-indexed" height="320"></canvas>
+  </div>
+</div>
+</div>
+
+<!-- STEP: winners and losers -->
+<div class="step-section fu">
+  <div class="step-text">
+    <h3>Sun Belt Shock</h3>
+    <p>Miami, Tampa, and Riverside saw the most dramatic rent increases of any major metros in the country. The reason was straightforward: remote workers from New York, San Francisco, and Los Angeles brought coastal salaries with them when they relocated. Local renters, earning local wages, simply could not compete.</p>
+    <div class="callout"><div class="big">Miami, FL</div><div class="sm">$1,734 per month in Jan 2020 vs $2,665 today — up 53.7%</div></div>
+    <p>On the other end of the spectrum, Austin and San Francisco saw far smaller gains. Austin overbuilt aggressively and tech industry layoffs reduced demand. San Francisco lost population as remote workers left for cheaper cities. Their rent growth barely budged compared to the Sun Belt.</p>
+  </div>
+  <div class="chart-wrap">
+    <div class="chart-head">
+      <span class="ct">Post-COVID Rent Change by Metro Area</span>
+      <span class="cn">January 2020 through March 2026 · Bars animate as you scroll</span>
+    </div>
+    <canvas id="c-bar" height="400"></canvas>
+  </div>
+</div>
+
+<!-- ══════════ ANIMATED HOUSE SCENE 2 (dark) ══════════ -->
+<div style="background:var(--ink);padding:2.5rem 0 0;position:relative;z-index:1;overflow:hidden">
+  <div class="house-scene" style="opacity:.55">
+    <div class="house h5" style="animation-name:bounce3">
+      <div class="chimney" style="left:6px;transform:translateY(-8px)"></div>
+      <div class="roof"></div>
+      <div class="house-body">
+        <div class="win wl"></div><div class="win wr"></div>
+        <div class="win w2l"></div><div class="win w2r"></div>
+        <div class="win w3l"></div><div class="win w3r"></div>
+        <div class="door"></div>
+      </div>
+    </div>
+    <div class="house h1" style="animation-name:bounce5">
+      <div class="roof"></div>
+      <div class="house-body">
+        <div class="win wl"></div>
+        <div class="win wr"></div>
+        <div class="door"></div>
+      </div>
+    </div>
+    <div class="house h4" style="animation-name:bounce2">
+      <div class="roof"></div>
+      <div class="house-body">
+        <div class="win wl"></div>
+        <div class="win wr"></div>
+        <div class="door"></div>
+      </div>
+    </div>
+  </div>
+  <div class="ground" style="background:linear-gradient(to right,transparent,rgba(245,240,232,.15),transparent)"></div>
+</div>
+
+<!-- DIVIDER 2 -->
+<div class="divider">
+  <div class="divider-inner">
+    <blockquote>"The market cooled in 2023 — but rent <em>never came back down.</em>"</blockquote>
+    <cite>A slowdown is not the same thing as relief. For most American renters, the new normal is simply a more expensive place to live.</cite>
+  </div>
+</div>
+
+<!-- ══════════ CH3 — EXPLORER ══════════ -->
+<div style="background:var(--cream);position:relative;z-index:1" id="explorer-section">
+<div class="section">
+  <div class="section-label fu">Chapter 3 · Interactive Explorer</div>
+  <h2 class="fu">Explore Every City</h2>
+  <p class="lead fu">Not every city tells the same story. Select any combination of metro areas from the buttons below and compare their rent trajectories side by side. Switch between absolute dollar rent, indexed growth since January 2020, or year over year percentage change to discover very different patterns in the same data.</p>
+  <div class="controls fu">
+    <span class="ctrl-lbl">View</span>
+    <div style="display:flex;gap:.35rem">
+      <button class="btn active" id="btn-abs" onclick="setMode('abs')">$ Absolute</button>
+      <button class="btn" id="btn-idx" onclick="setMode('idx')">Indexed</button>
+      <button class="btn" id="btn-yoy" onclick="setMode('yoy')">Year over Year</button>
+    </div>
+    <span class="ctrl-lbl" style="margin-left:1rem">Cities</span>
+    <div style="display:flex;flex-wrap:wrap;gap:.3rem" id="metro-btns"></div>
+  </div>
+  <div class="chart-wrap fu" id="explorer-wrap">
+    <div class="chart-head">
+      <span class="ct" id="exp-title">Monthly Rent by Metro Area</span>
+      <span class="cn">Click city buttons above to add or remove them from the chart</span>
+    </div>
+    <canvas id="c-explorer" height="380"></canvas>
+  </div>
+</div>
+</div>
+
+<!-- ══════════ CH4 — AFFORDABILITY ══════════ -->
+<section id="afford-section">
+  <div class="afford-inner">
+    <div class="section-label fu" style="color:rgba(212,168,67,.6)">Chapter 4 · What-If Calculator</div>
+    <h2 class="fu">Where Can <em style="color:var(--gold);font-style:normal">You</em> Afford to Live?</h2>
+    <p class="lead fu">This is the part that makes it personal. Drag the slider to your annual income and watch the map and city list update in real time. Any city where rent stays below 30 percent of your monthly income is considered affordable by the standard financial benchmark.</p>
+    <div class="slider-box fu">
+      <div style="font-family:'DM Mono',monospace;font-size:.68rem;letter-spacing:.15em;text-transform:uppercase;color:rgba(245,240,232,.45)">Your Annual Income</div>
+      <div class="income-val" id="inc-val">$60,000</div>
+      <input type="range" id="inc-slider" min="20000" max="200000" step="1000" value="60000">
+      <div style="display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:.62rem;color:rgba(245,240,232,.3)">
+        <span>$20,000</span><span>$200,000</span>
+      </div>
+    </div>
+    <div class="afford-summary fu">
+      <div class="afford-card good"><div class="big-n" id="aff-n">—</div><div class="sm-l">Affordable Cities</div></div>
+      <div class="afford-card bad"><div class="big-n" id="unaff-n">—</div><div class="sm-l">Unaffordable</div></div>
+      <div class="afford-card neutral">
+        <div style="font-family:'DM Mono',monospace;font-size:.65rem;color:rgba(245,240,232,.4);margin-bottom:.3rem">MAX AFFORDABLE MONTHLY RENT</div>
+        <div class="big-n" id="max-rent-val">—</div>
+        <div class="sm-l">30 percent of income divided by 12</div>
+      </div>
+    </div>
+    <div class="afford-cols fu">
+      <div>
+        <div class="tab-strip">
+          <button class="tab-btn on" onclick="setAfTab('aff')">Affordable</button>
+          <button class="tab-btn" onclick="setAfTab('unaff')">Unaffordable</button>
+        </div>
+        <div class="afford-list-wrap" id="af-list"></div>
+      </div>
+      <div>
+        <div class="mini-map-wrap">
+          <div class="map-lbl">
+            <span>Affordability Map</span>
+            <span>Green under 30% · Yellow 30 to 35% · Red over 35%</span>
+          </div>
+          <div style="height:calc(100% - 32px);position:relative">
+            <svg id="afford-map" viewBox="0 0 500 230" style="width:100%;height:100%;overflow:visible"></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ CH5 — TABLE ══════════ -->
+<div style="background:var(--white);position:relative;z-index:1">
+<div class="section fu">
+  <div class="section-label">Chapter 5 · Data Table</div>
+  <h2>City by City Snapshot</h2>
+  <p class="lead" style="margin-bottom:1.2rem">Every metro area in this dataset ranked and compared. Sort by post-COVID percentage change, total growth since 2015, or current rent level to see how the full picture shifts depending on what you are measuring.</p>
+  <div class="controls" style="gap:1.2rem">
+    <span class="ctrl-lbl">Sort by</span>
+    <div style="display:flex;gap:.35rem">
+      <button class="btn active" id="srt-covid" onclick="sortTbl('covid')">Post-COVID Change</button>
+      <button class="btn" id="srt-total" onclick="sortTbl('total')">Since 2015</button>
+      <button class="btn" id="srt-rent" onclick="sortTbl('rent')">Current Rent</button>
+    </div>
+  </div>
+  <div style="overflow-x:auto">
+    <table class="bar-table">
+      <thead><tr>
+        <th>Metro Area</th><th>Current Rent</th><th>Change Since Jan 2020</th>
+        <th style="min-width:180px">Visual</th><th>Change Since 2015</th>
+      </tr></thead>
+      <tbody id="tbl-body"></tbody>
+    </table>
+  </div>
+</div>
+</div>
+
+<!-- ══════════ OUTRO ══════════ -->
+<section id="outro">
+  <div style="max-width:1200px;margin:0 auto;width:100%">
+    <div style="font-family:'DM Mono',monospace;font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:1rem;opacity:.7">Takeaway</div>
+    <blockquote class="fu">American renters paid <em id="outro-n">37% more</em> in 2026 than they did the month before the pandemic began.</blockquote>
+    <div class="takeaway-row">
+      <div class="tk t1 fu">
+        <h4>The Surge</h4>
+        <p>The U.S. national rent index rose 37 percent since January 2020. That kind of sustained increase in such a short window has no modern precedent. Miami led all metros at plus 54 percent. The spike happened faster than wages, savings, or housing policy could respond.</p>
+      </div>
+      <div class="tk t2 fu">
+        <h4>Location Still Matters</h4>
+        <p>Sun Belt cities like Miami, Tampa, and Riverside absorbed massive waves of migration and their rents reflect that. Tech hubs like Austin and San Francisco cooled or declined after 2022 as remote work demand normalized and overbuilding added supply. Where you live is not just a lifestyle choice anymore. It is a financial one.</p>
+      </div>
+      <div class="tk t3 fu">
+        <h4>Income Shapes Your Options</h4>
+        <p>At 60 thousand dollars per year you can afford roughly 18 of the 30 cities in this dataset. At 40 thousand, fewer than 10. The affordability calculator in Chapter 4 makes this concrete. The gap between what people earn and what landlords charge has widened to a point where geography and income are increasingly the same conversation.</p>
+      </div>
+    </div>
+    <cite>Source: Zillow Research · ZORI Zillow Observed Rent Index · Single-Family Residences and Condos · Smoothed and Seasonally Adjusted</cite>
+  </div>
+</section>
+
+<!-- ══════════ ANIMATED HOUSE SCENE 3 (outro) ══════════ -->
+<div style="background:var(--ink);padding:2rem 0 0;position:relative;z-index:1;overflow:hidden">
+  <div class="house-scene" style="opacity:.4">
+    <div class="house h3" style="animation-name:bounce4"><div class="chimney" style="right:16px;transform:translateY(-11px)"></div><div class="roof"></div><div class="house-body"><div class="win wl"></div><div class="win wr"></div><div class="door"></div></div></div>
+    <div class="house h2" style="animation-name:bounce1"><div class="chimney" style="left:8px;transform:translateY(-9px)"></div><div class="roof"></div><div class="house-body"><div class="win wl"></div><div class="win wr"></div><div class="door"></div></div></div>
+    <div class="house h4" style="animation-name:bounce5"><div class="roof"></div><div class="house-body"><div class="win wl"></div><div class="win wr"></div><div class="door"></div></div></div>
+    <div class="house h1" style="animation-name:bounce3"><div class="roof"></div><div class="house-body"><div class="win wl"></div><div class="win wr"></div><div class="door"></div></div></div>
+  </div>
+  <div class="ground" style="background:linear-gradient(to right,transparent,rgba(245,240,232,.1),transparent)"></div>
+</div>
+
+<footer>
+  <span>Data: Zillow Research ZORI · 30 U.S. Metro Areas · 2015 to 2026</span>
+  <span style="text-align:center;line-height:1.8">
+    Created by <strong>Samiat Olawale</strong><br>
+    <a href="mailto:Samiatolawale12@gmail.com">Samiatolawale12@gmail.com</a>
+  </span>
+  <span>Project 3 · Data Visualization</span>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+const D={"dates":["2015-01-31","2015-04-30","2015-07-31","2015-10-31","2016-01-31","2016-04-30","2016-07-31","2016-10-31","2017-01-31","2017-04-30","2017-07-31","2017-10-31","2018-01-31","2018-04-30","2018-07-31","2018-10-31","2019-01-31","2019-04-30","2019-07-31","2019-10-31","2020-01-31","2020-04-30","2020-07-31","2020-10-31","2021-01-31","2021-04-30","2021-07-31","2021-10-31","2022-01-31","2022-04-30","2022-07-31","2022-10-31","2023-01-31","2023-04-30","2023-07-31","2023-10-31","2024-01-31","2024-04-30","2024-07-31","2024-10-31","2025-01-31","2025-04-30","2025-07-31","2025-10-31","2026-01-31"],"national":[1137,1160,1182,1188,1191,1210,1230,1230,1233,1261,1282,1282,1287,1313,1333,1334,1341,1367,1389,1390,1395,1412,1419,1415,1423,1468,1550,1614,1642,1691,1749,1756,1749,1779,1806,1807,1802,1831,1859,1858,1856,1886,1905,1901,1892],"metros":[{"name":"New York, NY","state":"NY","latest":3337,"jan2020":2484,"first":2184,"pct_covid":34.3,"pct_total":52.8,"series":[2184,2236,2276,2288,2267,2293,2334,2331,2312,2339,2381,2368,2339,2378,2425,2425,2405,2447,2503,2504,2484,2500,2440,2305,2261,2323,2478,2616,2681,2789,2935,2952,2907,2977,3061,3056,3030,3104,3177,3160,3157,3231,3321,3326,3291]},{"name":"Los Angeles, CA","state":"CA","latest":2895,"jan2020":2252,"first":1740,"pct_covid":28.6,"pct_total":66.4,"series":[1740,1781,1819,1844,1865,1896,1934,1946,1965,2016,2048,2059,2078,2110,2139,2155,2171,2197,2227,2237,2252,2245,2234,2232,2244,2280,2376,2490,2540,2619,2685,2700,2687,2715,2745,2755,2744,2776,2810,2818,2826,2873,2888,2887,2873]},{"name":"Chicago, IL","state":"IL","latest":2180,"jan2020":1570,"first":1374,"pct_covid":38.9,"pct_total":58.6,"series":[1374,1401,1425,1415,1418,1446,1468,1455,1444,1489,1508,1487,1487,1522,1545,1521,1524,1564,1585,1573,1570,1598,1595,1555,1536,1587,1657,1676,1696,1755,1816,1820,1823,1875,1925,1920,1925,1975,2017,2017,2028,2087,2138,2134,2138]},{"name":"Dallas, TX","state":"TX","latest":1645,"jan2020":1293,"first":1049,"pct_covid":27.2,"pct_total":56.7,"series":[1049,1072,1096,1100,1104,1128,1148,1152,1157,1184,1207,1205,1211,1232,1248,1248,1254,1277,1295,1295,1293,1307,1312,1319,1332,1372,1458,1523,1553,1596,1664,1651,1634,1652,1668,1655,1635,1644,1660,1648,1630,1657,1663,1648,1634]},{"name":"Houston, TX","state":"TX","latest":1610,"jan2020":1322,"first":1188,"pct_covid":21.8,"pct_total":35.5,"series":[1188,1209,1228,1223,1217,1229,1233,1221,1214,1236,1245,1255,1273,1288,1295,1290,1293,1303,1321,1316,1322,1330,1325,1332,1338,1362,1434,1475,1488,1522,1560,1557,1549,1576,1598,1588,1582,1598,1620,1620,1611,1630,1630,1624,1610]},{"name":"Washington, DC","state":"VA","latest":2347,"jan2020":1884,"first":1668,"pct_covid":24.6,"pct_total":40.7,"series":[1668,1695,1714,1706,1704,1724,1742,1735,1732,1768,1785,1778,1774,1803,1827,1824,1834,1863,1886,1882,1884,1903,1896,1862,1834,1868,1968,2026,2028,2081,2155,2150,2122,2174,2220,2227,2214,2268,2324,2319,2311,2363,2375,2347,2321]},{"name":"Philadelphia, PA","state":"PA","latest":1869,"jan2020":1389,"first":1182,"pct_covid":34.5,"pct_total":58.1,"series":[1182,1208,1219,1217,1212,1238,1253,1247,1254,1280,1288,1286,1291,1320,1332,1330,1340,1371,1389,1384,1389,1418,1425,1422,1432,1465,1526,1558,1593,1629,1669,1668,1667,1694,1718,1728,1726,1756,1780,1788,1799,1814,1842,1851,1852]},{"name":"Miami, FL","state":"FL","latest":2665,"jan2020":1734,"first":1467,"pct_covid":53.7,"pct_total":81.7,"series":[1467,1485,1510,1536,1552,1557,1559,1570,1577,1591,1602,1621,1625,1635,1650,1669,1679,1681,1696,1715,1734,1731,1727,1750,1799,1883,2036,2198,2329,2438,2525,2542,2553,2566,2579,2594,2590,2613,2627,2637,2637,2651,2657,2655,2651]},{"name":"Atlanta, GA","state":"GA","latest":1811,"jan2020":1310,"first":988,"pct_covid":38.2,"pct_total":83.3,"series":[988,1006,1030,1034,1042,1063,1089,1094,1100,1131,1161,1163,1174,1204,1229,1235,1251,1281,1305,1309,1310,1332,1358,1385,1410,1467,1570,1660,1669,1699,1760,1762,1743,1767,1778,1761,1742,1763,1781,1774,1765,1797,1814,1819,1803]},{"name":"Boston, MA","state":"MA","latest":3148,"jan2020":2424,"first":2020,"pct_covid":29.9,"pct_total":55.8,"series":[2020,2089,2120,2090,2109,2170,2203,2172,2184,2263,2281,2232,2271,2334,2360,2315,2341,2405,2440,2398,2424,2475,2430,2280,2277,2374,2489,2538,2575,2642,2761,2783,2779,2864,2933,2920,2940,3008,3051,3004,3047,3105,3126,3091,3104]},{"name":"Phoenix, AZ","state":"AZ","latest":1735,"jan2020":1275,"first":913,"pct_covid":36.2,"pct_total":90.1,"series":[913,946,956,962,972,991,1010,1013,1022,1051,1072,1079,1089,1120,1147,1161,1175,1209,1239,1254,1275,1292,1310,1356,1391,1455,1583,1675,1704,1741,1760,1740,1723,1749,1755,1742,1727,1751,1760,1747,1732,1754,1750,1735,1722]},{"name":"San Francisco, CA","state":"CA","latest":3161,"jan2020":2744,"first":2195,"pct_covid":15.2,"pct_total":44.0,"series":[2195,2272,2363,2407,2414,2458,2499,2478,2466,2524,2573,2584,2577,2617,2666,2671,2670,2702,2748,2739,2744,2751,2702,2560,2506,2565,2683,2728,2737,2811,2874,2864,2817,2863,2878,2857,2826,2882,2922,2917,2924,3000,3062,3092,3096]},{"name":"Riverside, CA","state":"CA","latest":2493,"jan2020":1681,"first":1282,"pct_covid":48.3,"pct_total":94.4,"series":[1282,1299,1323,1344,1350,1369,1388,1404,1418,1452,1482,1502,1513,1544,1570,1594,1606,1627,1654,1671,1681,1690,1726,1806,1860,1934,2053,2138,2177,2253,2300,2296,2290,2324,2336,2350,2336,2376,2403,2421,2426,2456,2467,2468,2472]},{"name":"Detroit, MI","state":"MI","latest":1473,"jan2020":1034,"first":844,"pct_covid":42.5,"pct_total":74.6,"series":[844,861,877,879,878,889,905,909,906,930,952,953,955,972,991,994,994,1017,1037,1035,1034,1051,1079,1103,1121,1158,1204,1238,1253,1281,1324,1320,1316,1330,1350,1355,1362,1384,1413,1424,1426,1449,1460,1464,1466]},{"name":"Seattle, WA","state":"WA","latest":2192,"jan2020":1748,"first":1320,"pct_covid":25.3,"pct_total":66.0,"series":[1320,1351,1397,1411,1408,1454,1513,1511,1510,1575,1626,1618,1602,1643,1682,1665,1666,1707,1746,1739,1748,1780,1771,1728,1676,1742,1869,1934,1932,1998,2084,2060,2008,2051,2090,2079,2061,2112,2159,2140,2130,2173,2215,2199,2178]},{"name":"Minneapolis, MN","state":"MN","latest":1681,"jan2020":1379,"first":1105,"pct_covid":21.9,"pct_total":52.1,"series":[1105,1127,1150,1143,1149,1170,1193,1198,1201,1235,1256,1255,1268,1297,1307,1307,1324,1355,1369,1365,1379,1395,1398,1397,1382,1411,1450,1460,1466,1500,1526,1518,1515,1545,1559,1550,1553,1587,1599,1598,1599,1634,1661,1663,1665]},{"name":"San Diego, CA","state":"CA","latest":2890,"jan2020":2041,"first":1594,"pct_covid":41.6,"pct_total":81.3,"series":[1594,1617,1651,1673,1683,1709,1748,1761,1769,1822,1859,1866,1878,1914,1952,1962,1964,1987,2023,2031,2041,2042,2046,2082,2113,2166,2286,2419,2472,2570,2687,2708,2676,2738,2805,2795,2748,2792,2835,2833,2825,2860,2885,2885,2864]},{"name":"Tampa, FL","state":"FL","latest":1988,"jan2020":1324,"first":1037,"pct_covid":50.2,"pct_total":91.7,"series":[1037,1053,1073,1081,1096,1110,1124,1135,1144,1169,1188,1190,1207,1229,1251,1256,1269,1288,1308,1316,1324,1341,1359,1393,1422,1481,1617,1741,1788,1846,1912,1906,1908,1934,1946,1954,1945,1955,1966,1972,2002,2023,2017,1995,1979]},{"name":"Denver, CO","state":"CO","latest":1858,"jan2020":1549,"first":1232,"pct_covid":19.9,"pct_total":50.8,"series":[1232,1280,1319,1325,1334,1351,1382,1366,1367,1409,1441,1432,1437,1471,1493,1489,1495,1524,1552,1542,1549,1555,1556,1554,1546,1595,1697,1749,1757,1815,1873,1856,1831,1881,1915,1906,1884,1922,1949,1918,1863,1898,1919,1879,1842]},{"name":"Baltimore, MD","state":"MD","latest":1868,"jan2020":1411,"first":1285,"pct_covid":32.4,"pct_total":45.4,"series":[1285,1300,1314,1311,1311,1327,1329,1320,1318,1340,1361,1347,1340,1370,1377,1371,1374,1400,1413,1408,1411,1422,1432,1441,1460,1496,1567,1601,1627,1661,1702,1688,1686,1721,1747,1739,1737,1767,1802,1807,1811,1834,1851,1857,1860]},{"name":"St. Louis, MO","state":"MO","latest":1416,"jan2020":986,"first":857,"pct_covid":43.6,"pct_total":65.1,"series":[857,868,875,875,879,889,897,896,895,913,922,921,921,939,947,948,952,970,982,978,986,1006,1020,1032,1040,1063,1100,1123,1141,1177,1215,1222,1224,1248,1283,1283,1284,1315,1341,1345,1356,1372,1386,1402,1406]},{"name":"Orlando, FL","state":"FL","latest":1937,"jan2020":1410,"first":1098,"pct_covid":37.4,"pct_total":76.4,"series":[1098,1121,1141,1153,1159,1176,1199,1207,1210,1233,1267,1268,1289,1314,1341,1351,1358,1381,1403,1410,1410,1420,1426,1432,1445,1494,1605,1720,1761,1829,1913,1904,1892,1922,1934,1914,1898,1923,1951,1930,1917,1946,1956,1941,1926]},{"name":"Charlotte, NC","state":"NC","latest":1726,"jan2020":1264,"first":991,"pct_covid":36.6,"pct_total":74.1,"series":[991,1013,1035,1041,1046,1067,1084,1091,1091,1127,1150,1147,1155,1179,1200,1197,1216,1238,1258,1263,1264,1277,1294,1312,1327,1365,1452,1518,1544,1578,1658,1656,1652,1675,1702,1692,1676,1691,1716,1706,1700,1727,1742,1729,1712]},{"name":"San Antonio, TX","state":"TX","latest":1391,"jan2020":1177,"first":1007,"pct_covid":18.2,"pct_total":38.2,"series":[1007,1025,1042,1042,1046,1063,1077,1079,1086,1103,1119,1112,1111,1129,1142,1147,1144,1161,1177,1182,1177,1190,1195,1203,1211,1239,1304,1358,1375,1411,1444,1433,1425,1443,1442,1427,1414,1426,1435,1413,1397,1418,1424,1400,1381]},{"name":"Portland, OR","state":"OR","latest":1780,"jan2020":1419,"first":1103,"pct_covid":25.4,"pct_total":61.3,"series":[1103,1145,1192,1219,1217,1250,1280,1278,1277,1319,1339,1332,1322,1345,1373,1372,1373,1393,1424,1422,1419,1431,1446,1453,1445,1488,1568,1615,1617,1659,1728,1728,1713,1735,1734,1718,1696,1738,1779,1772,1750,1776,1805,1793,1767]},{"name":"Sacramento, CA","state":"CA","latest":2225,"jan2020":1660,"first":1197,"pct_covid":34.1,"pct_total":85.9,"series":[1197,1226,1256,1282,1292,1320,1361,1370,1386,1444,1484,1506,1508,1537,1579,1587,1587,1629,1657,1664,1660,1685,1711,1765,1794,1842,1947,2000,2012,2052,2099,2098,2057,2090,2118,2120,2111,2149,2181,2186,2172,2199,2230,2231,2214]},{"name":"Pittsburgh, PA","state":"PA","latest":1479,"jan2020":1113,"first":961,"pct_covid":32.8,"pct_total":53.9,"series":[961,976,989,976,988,1008,1004,986,989,1022,1026,1019,1025,1052,1061,1051,1069,1089,1093,1101,1113,1129,1133,1137,1139,1165,1203,1224,1235,1260,1297,1303,1299,1322,1343,1346,1357,1372,1399,1407,1408,1432,1463,1460,1466]},{"name":"Cincinnati, OH","state":"OH","latest":1549,"jan2020":1072,"first":862,"pct_covid":44.5,"pct_total":79.8,"series":[862,875,888,892,902,904,918,918,930,946,964,965,968,993,1003,1011,1020,1040,1058,1059,1072,1096,1112,1118,1130,1155,1196,1229,1244,1285,1333,1344,1348,1381,1408,1418,1423,1447,1473,1486,1486,1502,1532,1532,1526]},{"name":"Austin, TX","state":"TX","latest":1579,"jan2020":1380,"first":1154,"pct_covid":14.4,"pct_total":36.8,"series":[1154,1180,1205,1206,1212,1227,1248,1235,1236,1270,1280,1263,1265,1291,1314,1316,1324,1353,1373,1378,1380,1393,1382,1370,1380,1445,1578,1663,1668,1724,1791,1762,1724,1743,1744,1699,1671,1675,1679,1633,1607,1623,1623,1584,1565]},{"name":"Las Vegas, NV","state":"NV","latest":1727,"jan2020":1265,"first":967,"pct_covid":36.5,"pct_total":78.6,"series":[967,985,1004,1011,1011,1025,1045,1051,1054,1082,1107,1116,1125,1155,1184,1196,1207,1234,1261,1265,1265,1274,1290,1338,1362,1406,1552,1653,1665,1691,1730,1681,1651,1679,1694,1684,1679,1706,1735,1720,1714,1737,1742,1727,1714]}]};
+
+const dates=D.dates,national=D.national,metros=D.metros;
+const labels=dates.map(d=>d.slice(0,7));
+const idx2020=dates.findIndex(d=>d.startsWith('2020-01'));
+const PALETTE=['#c0392b','#e67e22','#2980b9','#27ae60','#8e44ad','#16a085','#d4a843','#f39c12','#e74c3c','#1abc9c','#6c3483','#117a65','#1a5276','#7b241c','#1f618d','#148f77','#b7950b','#4a235a','#0e6655','#154360'];
+
+// Progress bar
+window.addEventListener('scroll',()=>{
+  document.getElementById('prog').style.width=(window.scrollY/(document.body.scrollHeight-window.innerHeight)*100)+'%';
+});
+
+// Hero counter
+function animCount(el,target,fmt,dur=1400){
+  const s=performance.now();
+  (function step(now){const p=Math.min((now-s)/dur,1),e=1-Math.pow(1-p,3);el.textContent=fmt(target*e);if(p<1)requestAnimationFrame(step);})(performance.now());
+}
+setTimeout(()=>{
+  animCount(document.getElementById('hn1'),37,v=>'+'+Math.round(v)+'%',1200);
+  animCount(document.getElementById('hn2'),1910,v=>'$'+Math.round(v).toLocaleString(),1500);
+},600);
+
+// Hero canvas
+(function(){
+  const cv=document.getElementById('hero-canvas'),ctx=cv.getContext('2d');
+  let W,H;
+  function resize(){W=cv.width=cv.offsetWidth;H=cv.height=cv.offsetHeight;}
+  resize();window.addEventListener('resize',resize);
+  let t=0;
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    ctx.strokeStyle='rgba(255,255,255,0.035)';ctx.lineWidth=1;
+    for(let x=0;x<W;x+=60){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+    for(let y=0;y<H;y+=60){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+    const r=100+Math.sin(t*.5)*20;
+    const grd=ctx.createRadialGradient(W*.7,H*.35,0,W*.7,H*.35,r*3);
+    grd.addColorStop(0,'rgba(192,57,43,0.08)');grd.addColorStop(1,'transparent');
+    ctx.fillStyle=grd;ctx.fillRect(0,0,W,H);
+    const sx=(t*8)%(W+H);
+    ctx.save();ctx.strokeStyle='rgba(212,168,67,0.06)';ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(sx-H,0);ctx.lineTo(sx,H);ctx.stroke();ctx.restore();
+    t+=.016;requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// Scroll observers
+const fuObs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in');});},{threshold:.12});
+document.querySelectorAll('.fu').forEach(el=>fuObs.observe(el));
+
+const CR={};
+const cwObs=new IntersectionObserver(es=>{
+  es.forEach(e=>{
+    if(!e.isIntersecting)return;
+    e.target.classList.add('cv');
+    const cv=e.target.querySelector('canvas');if(!cv)return;
+    const id=cv.id;
+    if(CR[id]&&!CR[id].drawn){CR[id].drawn=true;setTimeout(()=>new Chart(cv.getContext('2d'),CR[id].config),220);}
+  });
+},{threshold:.18});
+document.querySelectorAll('.chart-wrap').forEach(w=>cwObs.observe(w));
+
+const tblObs=new IntersectionObserver(([e])=>{
+  if(!e.isIntersecting)return;
+  document.querySelectorAll('.bar-fill').forEach((b,i)=>setTimeout(()=>{b.style.width=b.dataset.w;},i*18+200));
+},{threshold:.15});
+const tbl=document.querySelector('.bar-table');
+if(tbl)tblObs.observe(tbl);
+
+// COVID plugin
+const covidPlugin={id:'cv',afterDraw(chart){
+  const{ctx,chartArea,scales}=chart;
+  const x=scales.x.getPixelForValue(idx2020);
+  ctx.save();ctx.strokeStyle='rgba(192,57,43,.55)';ctx.lineWidth=1.5;ctx.setLineDash([4,4]);
+  ctx.beginPath();ctx.moveTo(x,chartArea.top);ctx.lineTo(x,chartArea.bottom);ctx.stroke();
+  ctx.fillStyle='rgba(192,57,43,.8)';ctx.font='500 10px DM Mono,monospace';
+  ctx.fillText('COVID-19',x+5,chartArea.top+14);ctx.restore();
+}};
+Chart.register(covidPlugin);
+
+// Chart 1 — national
+CR['c-national']={drawn:false,config:{
+  type:'line',
+  data:{labels,datasets:[{label:'U.S. National',data:national,borderColor:'#c0392b',backgroundColor:'rgba(192,57,43,.07)',borderWidth:2.5,fill:true,tension:.3,pointRadius:0,pointHoverRadius:5}]},
+  options:{responsive:true,animation:{duration:2000,easing:'easeInOutQuart'},interaction:{mode:'index',intersect:false},
+    plugins:{legend:{display:false},tooltip:{backgroundColor:'#0d0d0d',titleFont:{family:'DM Mono',size:10},bodyFont:{family:'DM Mono',size:10},callbacks:{label:c=>' $'+Math.round(c.raw).toLocaleString()}}},
+    scales:{x:{ticks:{font:{family:'DM Mono',size:9},maxRotation:0,callback:(v,i)=>i%8===0?dates[i].slice(0,4):''},grid:{display:false}},y:{ticks:{font:{family:'DM Mono',size:9},callback:v=>'$'+v.toLocaleString()},grid:{color:'rgba(0,0,0,.05)'}}}}
+}};
+
+// Chart 2 — indexed
+const TOP=['Miami, FL','Tampa, FL','Riverside, CA','Austin, TX','San Francisco, CA','New York, NY','Chicago, IL'];
+const idxDS=TOP.map((name,i)=>{
+  const m=metros.find(m=>m.name===name);if(!m)return null;
+  const base=m.series[idx2020];
+  return{label:name.split(',')[0],data:m.series.map(v=>v&&base?+(v/base*100).toFixed(1):null),borderColor:PALETTE[i],borderWidth:2,tension:.3,pointRadius:0,pointHoverRadius:5,fill:false};
+}).filter(Boolean);
+CR['c-indexed']={drawn:false,config:{
+  type:'line',data:{labels,datasets:idxDS},
+  options:{responsive:true,animation:{duration:2200,easing:'easeInOutCubic'},interaction:{mode:'index',intersect:false},
+    plugins:{legend:{position:'bottom',labels:{font:{family:'DM Mono',size:9},boxWidth:10,padding:12}},tooltip:{backgroundColor:'#0d0d0d',titleFont:{family:'DM Mono',size:9},bodyFont:{family:'DM Mono',size:9},callbacks:{label:c=>' '+c.dataset.label+': '+c.raw}}},
+    scales:{x:{ticks:{font:{family:'DM Mono',size:9},maxRotation:0,callback:(v,i)=>i%8===0?dates[i].slice(0,4):''},grid:{display:false}},y:{ticks:{font:{family:'DM Mono',size:9},callback:v=>v+''},grid:{color:'rgba(0,0,0,.05)'},title:{display:true,text:'Index: January 2020 equals 100',font:{family:'DM Mono',size:9}}}}}
+}};
+
+// Chart 3 — horizontal bar
+const srtM=[...metros].sort((a,b)=>b.pct_covid-a.pct_covid);
+CR['c-bar']={drawn:false,config:{
+  type:'bar',
+  data:{labels:srtM.map(m=>m.name.split(',')[0]),datasets:[{label:'Percent change since Jan 2020',data:srtM.map(m=>m.pct_covid),backgroundColor:srtM.map(m=>m.pct_covid>45?'#c0392b':m.pct_covid>35?'#e67e22':m.pct_covid>25?'#d4a843':'#2980b9'),borderRadius:1}]},
+  options:{indexAxis:'y',responsive:true,animation:{duration:1800,easing:'easeOutQuart'},plugins:{legend:{display:false},tooltip:{backgroundColor:'#0d0d0d',callbacks:{label:c=>' +'+c.raw+'%'}}},
+    scales:{x:{ticks:{font:{family:'DM Mono',size:9},callback:v=>'+'+v+'%'},grid:{color:'rgba(0,0,0,.05)'}},y:{ticks:{font:{family:'DM Mono',size:9}},grid:{display:false}}}}
+}};
+
+// Explorer
+let exMode='abs',exChart=null;
+const exSel=new Set(['New York, NY','Los Angeles, CA','Miami, FL','Austin, TX']);
+function buildMetroBtns(){
+  const wrap=document.getElementById('metro-btns');
+  metros.slice(0,20).forEach((m,i)=>{
+    const b=document.createElement('button');
+    b.className='btn metro-btn'+(exSel.has(m.name)?' active':'');
+    b.textContent=m.name.split(',')[0];
+    b.onclick=()=>{
+      if(exSel.has(m.name)){if(exSel.size<=1)return;exSel.delete(m.name);b.classList.remove('active');}
+      else{exSel.add(m.name);b.classList.add('active');}
+      updateEx();
+    };
+    wrap.appendChild(b);
+  });
+}
+function setMode(m){
+  exMode=m;
+  ['abs','idx','yoy'].forEach(id=>document.getElementById('btn-'+id).classList.toggle('active',id===m));
+  updateEx();
+}
+function updateEx(){
+  const titles={abs:'Monthly Rent in Dollars',idx:'Indexed Growth since January 2020',yoy:'Year over Year Percentage Change'};
+  document.getElementById('exp-title').textContent=titles[exMode];
+  const ds=[];let ci=0;
+  metros.forEach(m=>{
+    if(!exSel.has(m.name))return;
+    let data;
+    if(exMode==='abs')data=m.series;
+    else if(exMode==='idx'){const b=m.series[idx2020];data=m.series.map(v=>v&&b?+(v/b*100).toFixed(1):null);}
+    else data=m.series.map((v,i)=>{if(i<4||!v)return null;const p=m.series[i-4];return p?+(((v-p)/p)*100).toFixed(1):null;});
+    ds.push({label:m.name.split(',')[0],data,borderColor:PALETTE[ci%PALETTE.length],borderWidth:2,tension:.3,pointRadius:0,pointHoverRadius:5,fill:false});
+    ci++;
+  });
+  const yCb=exMode==='abs'?v=>'$'+Math.round(v).toLocaleString():exMode==='idx'?v=>v+'':v=>v+'%';
+  if(exChart){exChart.data.datasets=ds;exChart.options.scales.y.ticks.callback=yCb;exChart.update('active');return;}
+  document.getElementById('explorer-wrap').classList.add('cv');
+  exChart=new Chart(document.getElementById('c-explorer').getContext('2d'),{
+    type:'line',data:{labels,datasets:ds},
+    options:{responsive:true,animation:{duration:700},interaction:{mode:'index',intersect:false},
+      plugins:{legend:{position:'bottom',labels:{font:{family:'DM Mono',size:9},boxWidth:10,padding:10}},tooltip:{backgroundColor:'#0d0d0d',titleFont:{family:'DM Mono',size:9},bodyFont:{family:'DM Mono',size:9}}},
+      scales:{x:{ticks:{font:{family:'DM Mono',size:9},maxRotation:0,callback:(v,i)=>i%8===0?dates[i].slice(0,4):''},grid:{display:false}},y:{ticks:{font:{family:'DM Mono',size:9},callback:yCb},grid:{color:'rgba(0,0,0,.05)'}}}}
+  });
+}
+
+// Affordability calculator
+let afTab='aff';
+const COORDS={'New York, NY':[67,22],'Los Angeles, CA':[10,42],'Chicago, IL':[58,25],'Dallas, TX':[44,48],'Houston, TX':[44,54],'Washington, DC':[70,30],'Philadelphia, PA':[71,27],'Miami, FL':[65,65],'Atlanta, GA':[62,50],'Boston, MA':[76,20],'Phoenix, AZ':[18,48],'San Francisco, CA':[8,33],'Riverside, CA':[11,44],'Detroit, MI':[62,22],'Seattle, WA':[9,14],'Minneapolis, MN':[50,20],'San Diego, CA':[12,47],'Tampa, FL':[62,58],'Denver, CO':[32,36],'Baltimore, MD':[71,29],'St. Louis, MO':[54,36],'Orlando, FL':[64,60],'Charlotte, NC':[66,42],'San Antonio, TX':[42,57],'Portland, OR':[9,19],'Sacramento, CA':[9,31],'Pittsburgh, PA':[67,28],'Cincinnati, OH':[62,33],'Austin, TX':[43,54],'Las Vegas, NV':[16,42]};
+function updateAffordMap(monthlyMax){
+  const svg=document.getElementById('afford-map');svg.innerHTML='';
+  metros.forEach(m=>{
+    const c=COORDS[m.name]||[50,50];
+    const pct=m.latest/monthlyMax*100;
+    const col=pct<100?'#2ecc71':pct<117?'#f1c40f':'#c0392b';
+    const r=Math.max(3,Math.min(9,m.latest/320));
+    const x=c[0]/100*480+10,y=c[1]/100*210+10;
+    const ring=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    ring.setAttribute('cx',x);ring.setAttribute('cy',y);ring.setAttribute('r',r+3);
+    ring.setAttribute('fill','none');ring.setAttribute('stroke',col);ring.setAttribute('stroke-width','1');ring.setAttribute('opacity','.3');svg.appendChild(ring);
+    const dot=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    dot.setAttribute('cx',x);dot.setAttribute('cy',y);dot.setAttribute('r',r);
+    dot.setAttribute('fill',col);dot.setAttribute('opacity','.85');
+    dot.setAttribute('stroke','rgba(0,0,0,.4)');dot.setAttribute('stroke-width','1');
+    const title=document.createElementNS('http://www.w3.org/2000/svg','title');
+    title.textContent=m.name+' · $'+m.latest+'/mo · '+Math.round(pct)+'% of budget';
+    dot.appendChild(title);svg.appendChild(dot);
+    if(m.latest>2500){
+      const txt=document.createElementNS('http://www.w3.org/2000/svg','text');
+      txt.setAttribute('x',x+r+2);txt.setAttribute('y',y+3);
+      txt.setAttribute('font-size','7');txt.setAttribute('fill','rgba(245,240,232,.5)');txt.setAttribute('font-family','DM Mono,monospace');
+      txt.textContent=m.name.split(',')[0];svg.appendChild(txt);
+    }
+  });
+}
+function setAfTab(t){
+  afTab=t;
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('on',i===(t==='aff'?0:1)));
+  runAfford(parseInt(document.getElementById('inc-slider').value));
+}
+function runAfford(income){
+  const monthlyMax=income/12*.3;
+  document.getElementById('inc-val').textContent='$'+income.toLocaleString();
+  document.getElementById('max-rent-val').textContent='$'+Math.round(monthlyMax).toLocaleString()+'/mo';
+  const pct=(income-20000)/180000*100;
+  document.getElementById('inc-slider').style.setProperty('--p',pct+'%');
+  const aff=metros.filter(m=>m.latest<=monthlyMax);
+  const unaff=metros.filter(m=>m.latest>monthlyMax);
+  document.getElementById('aff-n').textContent=aff.length;
+  document.getElementById('unaff-n').textContent=unaff.length;
+  const list=afTab==='aff'?[...aff].sort((a,b)=>a.latest-b.latest):[...unaff].sort((a,b)=>a.latest-b.latest);
+  document.getElementById('af-list').innerHTML=list.map((m,i)=>{
+    const pi=Math.round(m.latest/(income/12)*100);
+    return`<div class="afford-item ${afTab}" style="transition-delay:${i*25}ms"><span>${m.name.split(',')[0]}, ${m.state}</span><span class="arent">$${m.latest.toLocaleString()}</span><span class="apct">${pi}%</span></div>`;
+  }).join('');
+  setTimeout(()=>document.querySelectorAll('.afford-item').forEach((el,i)=>setTimeout(()=>el.classList.add('in'),i*22)),50);
+  updateAffordMap(monthlyMax);
+}
+document.getElementById('inc-slider').addEventListener('input',e=>runAfford(parseInt(e.target.value)));
+runAfford(60000);
+
+// Table
+let tSort='covid';
+function sortTbl(by){
+  tSort=by;
+  ['covid','total','rent'].forEach(id=>document.getElementById('srt-'+id).classList.toggle('active',id===by));
+  renderTbl();
+}
+function renderTbl(){
+  const srt=[...metros].sort((a,b)=>tSort==='covid'?b.pct_covid-a.pct_covid:tSort==='total'?b.pct_total-a.pct_total:b.latest-a.latest);
+  const maxP=Math.max(...srt.map(m=>m.pct_covid));
+  document.getElementById('tbl-body').innerHTML=srt.map(m=>{
+    const pctC=m.pct_covid>45?'hot':m.pct_covid>30?'warm':'cool';
+    const bw=Math.round(m.pct_covid/maxP*100);
+    const bc=m.pct_covid>45?'#c0392b':m.pct_covid>30?'#e67e22':'#2980b9';
+    return`<tr><td class="metro-name">${m.name}</td><td class="val-cell">$${m.latest.toLocaleString()}</td><td class="pct-cell ${pctC}">+${m.pct_covid}%</td><td class="bar-cell"><div class="bar-fill" data-w="${bw}%" style="background:${bc}"></div></td><td class="pct-cell">+${m.pct_total}%</td></tr>`;
+  }).join('');
+  if(tbl&&tbl.getBoundingClientRect().top<window.innerHeight)
+    document.querySelectorAll('.bar-fill').forEach((b,i)=>setTimeout(()=>{b.style.width=b.dataset.w;},i*18+100));
+}
+renderTbl();
+new MutationObserver(()=>{
+  if(tbl&&tbl.getBoundingClientRect().top<window.innerHeight)
+    document.querySelectorAll('.bar-fill').forEach((b,i)=>setTimeout(()=>{b.style.width=b.dataset.w;},i*18+100));
+}).observe(document.getElementById('tbl-body'),{childList:true});
+
+buildMetroBtns();
+updateEx();
+setTimeout(()=>document.querySelectorAll('.fu').forEach(el=>{if(el.getBoundingClientRect().top<window.innerHeight)el.classList.add('in');}),100);
+</script>
+</body>
+</html>
